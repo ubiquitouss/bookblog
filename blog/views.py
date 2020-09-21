@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.postgres.search import SearchVector
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank, TrigramSimilarity
 from django.shortcuts import render, get_object_or_404
 from .models import Post, Comment
 from .forms import EmailPostForm, CommentForm, SearchForm
@@ -90,8 +90,18 @@ def post_search(request):
         form = SearchForm(request.GET)
         if form.is_valid():
             query = form.cleaned_data['query']
-            results = Post.objects.annotate(search=SearchVector(
-                'title', 'body'),).filter(search=query)
+            search_vector = SearchVector(
+                'title', weight='A')+SearchVector('body', weight='B')
+            search_query = SearchQuery(query)
+            # results = Post.objects.annotate(search=SearchVector(
+            #     'title', 'body'),).filter(search=query)
+            # results = Post.objects.annotate(search=search_vector,
+            #                                 rank=SearchRank(search_vector, search_query)).filter(search=search_query).order_by('-rank')
+
+            # results = Post.objects.annotate(search=search_vector,
+            #                                 rank=SearchRank(search_vector, search_query)).filter(rank__gte=0.3).order_by('-rank')
+            results = Post.objects.annotate(similarity=TrigramSimilarity(
+                'title', 'query'),).filter(similarity__gte=0.1).order_by('-similarity')
     return render(request, 'blog/post/search.html', {'form': form, 'query': query, 'results': results})
 
 # class based view

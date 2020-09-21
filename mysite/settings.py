@@ -9,8 +9,19 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+import os
+from django.core.exceptions import ImproperlyConfigured
 from pathlib import Path
+
+
+
+def get_secret(setting):
+    """Get the secret variable or return explicit exception."""
+    try:
+        return os.environ[setting]
+    except KeyError:
+        error_msg = f'Set the {setting} environment variable'
+        raise ImproperlyConfigured(error_msg)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +31,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'cx=j9^uqjm_)+nrpw$&ap9nb)gxngid!t%japs^nz^rns(ucwr'
+SECRET_KEY = 'BLOG_SECRET_KEY'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -82,8 +93,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'blog',
-        'USER': 'ubiquitouss',
-        'PASSWORD': 'Kof',
+        'USER': 'BLOG_DATABASE_USERNAME',
+        'PASSWORD': 'BLOG_DATABASE_PASSWORD',
     }
 }
 
@@ -107,8 +118,8 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'tawkir.ph@gmail.com'
-EMAIL_HOST_PASSWORD = '9kxp2s4@t1bzx'
+EMAIL_HOST_USER = 'EMAIL_HOST_USER'
+EMAIL_HOST_PASSWORD = 'EMAIL_HOST_PASSWORD'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
